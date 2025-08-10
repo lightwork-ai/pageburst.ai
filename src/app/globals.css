@@ -1,0 +1,805 @@
+﻿@import "tailwindcss";
+
+/* Dark by default */
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --surface: #0f0f10;
+  --surface-2: #141416;
+  --border: #242427;
+
+  --burst: #8B5CF6;
+  --burst-pink: #EC4899;
+  --burst-blue: #3B82F6;
+}
+
+/* Map CSS vars to tokens other utilities can read if needed */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+
+  --color-burst: var(--burst);
+  --color-burst-pink: var(--burst-pink);
+  --color-burst-blue: var(--burst-blue);
+
+  --font-sans: var(--font-poppins, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Helvetica Neue","Apple Color Emoji","Segoe UI Emoji");
+  --radius-xl2: 1rem;
+}
+
+/* Optional light theme via data attribute */
+:root[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --surface: #ffffff;
+  --surface-2: #f6f7f8;
+  --border: #e6e6e6;
+}
+
+body { background: var(--background); color: var(--foreground); }
+
+/* === Your custom utilities / components (no @apply to .btn) === */
+
+.container-page { @apply mx-auto max-w-6xl px-6; }
+
+.input-burst {
+  @apply w-full rounded-md border px-4 py-3 outline-none transition;
+  background: var(--surface);
+  border-color: var(--border);
+}
+.input-burst:focus { box-shadow: 0 0 0 4px color-mix(in oklab, var(--burst) 30%, transparent); }
+
+.card-glass {
+  @apply rounded-xl border bg-black/20;
+  border-color: var(--border);
+  backdrop-filter: saturate(140%) blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+
+.badge-contrast {
+  @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full;
+  color: color-mix(in oklab, white 92%, transparent);
+  background: color-mix(in oklab, var(--surface-2) 80%, transparent);
+  border: 1px solid var(--border);
+}
+
+/* Hero gradient */
+@keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.hero-gradient{
+  background: linear-gradient(135deg,#8B5CF6 0%,#EC4899 35%,#3B82F6 70%,#8B5CF6 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 14s ease-in-out infinite;
+  will-change: background-position;
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-gradient{ animation: none; }
+}
+
+/* Shimmer */
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+.shimmer { position: relative; }
+.shimmer::after{
+  content:"";
+  position:absolute; inset:1px; border-radius:10px;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
+  background-size:200% 100%;
+  animation: shimmer 2.2s linear infinite;
+  pointer-events:none;
+  mask-image: linear-gradient(#000,#000);
+}
+
+/* Subtle hover lift */
+.hover-lift{ transition: transform .2s ease, box-shadow .2s ease; }
+.hover-lift:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* Readability on color bg */
+.text-shadow-lg { text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+/* ================================
+   POLISH: bring back the old UI vibe
+   - subtle lift, gradient primary, soft glow focus
+   - tidy ghost buttons
+   - card/pricing pop
+   - respects reduced motion
+================================== */
+
+:root {
+  --btn-radius: .75rem;
+  --btn-glow: color-mix(in oklab, var(--burst) 42%, transparent);
+  --btn-border: color-mix(in oklab, var(--burst) 55%, #000 45%);
+}
+
+/* Base lift */
+.hover-lift{ transition: transform .15s ease, box-shadow .25s ease; }
+@media (hover:hover){
+  .hover-lift:hover{ transform: translateY(-1px); box-shadow: 0 10px 26px rgba(0,0,0,.18); }
+}
+
+/* Buttons (override daisyUI by increasing specificity) */
+.btn{ border-radius: var(--btn-radius); transition: transform .15s ease, box-shadow .25s ease, background .2s; }
+.btn:active{ transform: translateY(0); }
+
+.btn.btn-primary{
+  background: linear-gradient(135deg, var(--burst) 0%, var(--burst-pink) 60%);
+  border: 1px solid var(--btn-border);
+  color: #fff;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--burst) 26%, transparent);
+}
+@media (hover:hover){
+  .btn.btn-primary:hover{
+    box-shadow: 0 14px 36px color-mix(in oklab, var(--burst) 36%, transparent);
+    transform: translateY(-1px);
+  }
+}
+.btn.btn-primary:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--burst) 32%, transparent),
+    0 14px 36px color-mix(in oklab, var(--burst) 36%, transparent);
+}
+
+/* Ghost button for dark surfaces */
+.btn.btn-ghost{
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: color-mix(in oklab, var(--foreground) 92%, transparent);
+}
+@media (hover:hover){
+  .btn.btn-ghost:hover{
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--surface-2) 85%, transparent),
+      var(--surface));
+    transform: translateY(-1px);
+  }
+}
+
+/* Cards / pricing panels */
+.card, .pricing-card{
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 1rem;
+}
+.pricing-card{ position: relative; overflow: hidden; }
+.pricing-card::before{
+  content: ""; position: absolute; inset: -1px; border-radius: inherit;
+  background: conic-gradient(from 180deg at 50% 50%,
+    color-mix(in oklab, var(--burst) 30%, transparent),
+    color-mix(in oklab, var(--burst-pink) 22%, transparent),
+    color-mix(in oklab, var(--burst-blue) 22%, transparent),
+    transparent);
+  opacity: 0; transition: opacity .25s ease; pointer-events: none;
+}
+.pricing-card:hover::before{ opacity: .18; }
+.pricing-card.is-selected{
+  outline: 2px solid var(--burst);
+  box-shadow: 0 10px 40px color-mix(in oklab, var(--burst) 28%, transparent);
+}
+
+/* Badges */
+.badge-contrast{
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface-2) 82%, transparent);
+  color: color-mix(in oklab, white 92%, transparent);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .hover-lift, .btn{ transition: none !important; }
+}
+
+/* layer: utilities */
+/* ================================
+   POLISH (utilities layer so it overrides daisyUI)
+================================== */
+
+:root{
+  --btn-radius:.75rem;
+  --btn-border: color-mix(in oklab, var(--burst) 55%, #000 45%);
+}
+
+/* Subtle lift */
+.hover-lift{ transition: transform .15s ease, box-shadow .25s ease; }
+@media (hover:hover){ .hover-lift:hover{ transform: translateY(-1px); box-shadow: 0 10px 26px rgba(0,0,0,.18); } }
+
+/* --- Buttons --- */
+/* bump specificity with html .btn so we outrank .btn from daisyUI */
+html .btn{
+  border-radius: var(--btn-radius);
+  transition: transform .15s ease, box-shadow .25s ease, background .2s ease;
+}
+
+html .btn:active{ transform: translateY(0); }
+
+/* Primary gradient */
+html .btn.btn-primary{
+  background-image: linear-gradient(135deg, var(--burst) 0%, var(--burst-pink) 60%) !important;
+  border: 1px solid var(--btn-border) !important;
+  color:#fff !important;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--burst) 26%, transparent) !important;
+}
+@media (hover:hover){
+  html .btn.btn-primary:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 14px 36px color-mix(in oklab, var(--burst) 36%, transparent) !important;
+  }
+}
+html .btn.btn-primary:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--burst) 32%, transparent),
+    0 14px 36px color-mix(in oklab, var(--burst) 36%, transparent) !important;
+}
+
+/* Ghost on dark */
+html .btn.btn-ghost{
+  background: var(--surface-2) !important;
+  border:1px solid var(--border) !important;
+  color: color-mix(in oklab, var(--foreground) 92%, transparent) !important;
+}
+@media (hover:hover){
+  html .btn.btn-ghost:hover{
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--surface-2) 85%, transparent),
+      var(--surface)) !important;
+    transform: translateY(-1px);
+  }
+}
+
+/* Cards / pricing */
+html .card, html .pricing-card{
+  border:1px solid var(--border);
+  background: var(--surface);
+  border-radius: 1rem;
+}
+html .pricing-card{ position:relative; overflow:hidden; }
+html .pricing-card::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit;
+  background: conic-gradient(from 180deg at 50% 50%,
+    color-mix(in oklab, var(--burst) 30%, transparent),
+    color-mix(in oklab, var(--burst-pink) 22%, transparent),
+    color-mix(in oklab, var(--burst-blue) 22%, transparent),
+    transparent);
+  opacity:0; transition:opacity .25s ease; pointer-events:none;
+}
+html .pricing-card:hover::before{ opacity:.18; }
+html .pricing-card.is-selected{
+  outline:2px solid var(--burst);
+  box-shadow:0 10px 40px color-mix(in oklab, var(--burst) 28%, transparent);
+}
+
+/* Badge */
+html .badge-contrast{
+  border:1px solid var(--border);
+  background: color-mix(in oklab, var(--surface-2) 82%, transparent);
+  color: color-mix(in oklab, white 92%, transparent);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .hover-lift, .btn{ transition:none !important; }
+}
+/* ===== Burst CTA + Headline motion (standalone) ===== */
+:root{
+  --g1: var(--burst); --g2: var(--burst-pink); --g3: var(--burst-blue);
+}
+
+/* Animated gradient headline (smooth spectral shift + soft glow) */
+.headline-pop{
+  background: linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g1));
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: headlineShift 8s ease-in-out infinite;
+  filter: drop-shadow(0 6px 22px color-mix(in oklab, var(--g1) 24%, transparent));
+}
+@keyframes headlineShift{
+  0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+}
+
+/* Primary gradient CTA with lift/glow */
+/* Primary gradient CTA with lift/glow */
+.btn-cta.burst-cta {
+  border-radius: 0.75rem; /* match rainbow input radius */
+  font-weight: 600;
+  background-image: linear-gradient(135deg, var(--g1), var(--g2));
+  color: #fff;
+  border: 1px solid color-mix(in oklab, var(--g1) 55%, #000 45%);
+  box-shadow: 0 10px 30px color-mix(in oklab, var(--g1) 34%, transparent);
+  transform: translateY(0);
+  transition: transform .15s ease, box-shadow .25s ease, filter .25s ease, opacity .2s ease;
+  will-change: transform, box-shadow, filter;
+}
+
+.btn-cta.burst-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px color-mix(in oklab, var(--g1) 36%, transparent);
+  filter: brightness(1.03);
+}
+
+.btn-cta.burst-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 22px color-mix(in oklab, var(--g1) 26%, transparent);
+}
+
+.btn-cta.burst-cta--ghost {
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #fff;
+  border: 1px solid color-mix(in oklab, var(--g1) 45%, #000 55%);
+}
+
+.burst-cta:hover::after{ opacity:1; }
+
+/* Ghost variant you can use elsewhere if needed */
+.burst-cta--ghost{
+  background: var(--surface-2); color: var(--foreground);
+  border:1px solid var(--border); box-shadow:none;
+}
+.burst-cta--ghost:hover{ background: color-mix(in oklab, var(--surface-2) 80%, var(--foreground) 6%); }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .headline-pop, .burst-cta{ animation: none; transition: none; }
+}
+/* ===== Hero shimmer + burst CTA (standalone, Tailwind-friendly) ===== */
+:root{
+  --g1: var(--burst);
+  --g2: var(--burst-pink);
+}
+
+/* White text + passing "shooting star" sweep */
+.hero-shimmer{
+  position:relative;
+  color:#fff;
+  text-shadow: 0 2px 22px color-mix(in oklab, #fff 16%, transparent);
+}
+.hero-shimmer::before{
+  content:"";
+  position:absolute; top:0; bottom:0; left:-30%;
+  width:30%;
+  background: linear-gradient(75deg, transparent 0%,
+            rgba(255,255,255,.85) 45%,
+            rgba(255,255,255,.95) 50%,
+            transparent 55%);
+  transform: skewX(-18deg);
+  mix-blend-mode: screen;
+  filter: blur(0.3px);
+  animation: starSweep 4.2s cubic-bezier(.22,.61,.36,1) infinite;
+  pointer-events:none;
+}
+@keyframes starSweep{
+  0%{ left:-35% } 55%{ left:25% } 100%{ left:105% }
+}
+
+/* Pop gradient pill CTA */
+.burst-cta {border-radius: 0.375rem; font-weight:600;
+  color:#fff;
+  background-image: linear-gradient(135deg,var(--g1),var(--g2));
+  border:1px solid color-mix(in oklab, var(--g1) 55%, #000 45%);
+  box-shadow: 0 10px 28px color-mix(in oklab, var(--g1) 36%, transparent);
+  transform: translateY(0);
+  transition: transform .15s ease, box-shadow .25s ease, filter .25s ease, opacity .2s ease;
+}
+.burst-cta:hover{ transform: translateY(-1px); filter: brightness(1.04);
+  box-shadow: 0 16px 42px color-mix(in oklab, var(--g1) 46%, transparent); }
+.burst-cta:active{ transform: translateY(0); }
+
+/* Ghost pill (for "Rebuild from URL") */
+.burst-cta--ghost{
+  background: var(--surface-2);
+  color: var(--foreground);
+  border:1px solid var(--border);
+  box-shadow:none;
+}
+.burst-cta--ghost:hover{ background: color-mix(in oklab, var(--surface-2) 85%, var(--foreground) 8%); }
+
+@media (prefers-reduced-motion: reduce){
+  .hero-shimmer::before{ animation:none }
+  .burst-cta{ transition:none }
+}
+/* === Hero shimmer + gradient pill (original look) === */
+.text-shimmer{
+  background: linear-gradient(90deg,#fff 0%,#fff 35%,rgba(255,255,255,0.65) 50%,#fff 65%,#fff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size: 200% 100%; animation: shimmer-move 3.2s linear infinite;
+}
+@keyframes shimmer-move{ from{background-position:0% 0} to{background-position:-200% 0} }
+
+.pill-gradient{
+  background: linear-gradient(135deg,#8b5cf6 0%,#ec4899 50%,#3b82f6 100%);
+}
+.pill-hover{ transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease; }
+.pill-hover:hover{ transform: translateY(-1px); box-shadow:0 10px 30px rgba(139,92,246,.30),0 6px 18px rgba(236,72,153,.25); opacity:.98; }
+.pill-hover:active{ transform: translateY(0); }
+
+.pill-subtle{
+  background: linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.08));
+}
+/* HERO shimmer + gradient pill */
+.text-shimmer{
+  background:linear-gradient(90deg,#fff 0%,#fff 35%,rgba(255,255,255,.65) 50%,#fff 65%,#fff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size:200% 100%;animation:shimmer-move 3.2s linear infinite;
+}
+@keyframes shimmer-move{from{background-position:0% 0}to{background-position:-200% 0}}
+
+.pill-gradient{background:linear-gradient(135deg,#8b5cf6 0%,#ec4899 50%,#3b82f6 100%);}
+.pill-hover{transition:transform .2s, box-shadow .2s, opacity .2s}
+.pill-hover:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(139,92,246,.30),0 6px 18px rgba(236,72,153,.25);opacity:.98}
+.pill-hover:active{transform:translateY(0)}
+
+.chip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);border-radius:9999px;padding:.5rem .9rem;font-size:.8rem}
+
+/* === hero helpers (restores original animations) === */
+.pill-gradient{background:linear-gradient(135deg,#ec4899 0%,#8b5cf6 50%,#3b82f6 100%);} 
+.btn-pulse{animation:btnPulse 2.8s ease-in-out infinite;}
+@keyframes btnPulse{0%,100%{transform:translateZ(0) scale(1); box-shadow:0 0 0 rgba(255,255,255,0);}50%{transform:translateZ(0) scale(1.02); box-shadow:0 10px 30px rgba(0,0,0,.25);}}
+.text-shine{background:linear-gradient(90deg,#fff 0%,#fff 40%,rgba(255,255,255,.4) 50%,#fff 60%,#fff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:textShine 4s linear infinite;}
+@keyframes textShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.toggle-chip{padding:.4rem .9rem;border-radius:9999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);transition:all .2s ease;}
+.toggle-chip--on{background:rgba(255,255,255,.18);box-shadow:0 0 0 1px rgba(255,255,255,.28) inset;}
+.badge-ghost{border-radius:9999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);padding:.35rem .7rem}
+/* Text shine wrapper */
+.shine-wrap {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.shine {
+  position: absolute;
+  top: 0;
+  left: -75%;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  animation: shine 2.5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
+/* Background gradient animation */
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.animate-gradient {
+  animation: gradient-move 12s ease infinite;
+}
+/* === RESTORED HERO SHIMMER (white text + shooting-star sweep) === */
+.hero-shimmer .shine-wrap{position:relative;display:inline-block;overflow:hidden}
+.hero-shimmer .shine-wrap::after{
+  content:"";position:absolute;top:-12%;left:-40%;height:140%;width:36%;
+  transform:skewX(-22deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.9) 48%,rgba(255,255,255,0) 72%);
+  filter:blur(1.2px);opacity:.0;pointer-events:none;will-change:left,opacity;
+  animation:hero-sweep 2600ms ease-in-out infinite;
+}
+@keyframes hero-sweep{0%{left:-42%;opacity:.0}12%{opacity:.95}55%{left:120%;opacity:.0}100%{left:120%;opacity:0}}
+.headline-pop{text-shadow:0 14px 38px rgba(0,0,0,.35)}
+
+/* animated background drift on hero */
+@keyframes gradient-move{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.animate-gradient{animation:gradient-move 12s ease infinite}
+
+/* === SEGMENTED TOGGLE (Generate / Rebuild) === */
+.tabbar{
+  position:relative; display:grid; grid-template-columns:1fr 1fr; gap:.25rem;
+  padding:.25rem; border-radius:9999px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+}
+.tabbar .seg-thumb{
+  position:absolute; inset:auto; height:calc(100% - .5rem); width:calc(50% - .25rem);
+  left:.25rem; top:.25rem; border-radius:9999px; z-index:0;
+  background:linear-gradient(135deg,var(--burst),var(--burst-pink));
+  box-shadow:0 10px 28px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.2);
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+.tabbar .seg-btn{
+  position:relative; z-index:1; padding:.55rem 1.1rem; border-radius:9999px;
+  font-weight:600; color:rgba(255,255,255,.8); user-select:none;
+}
+.tabbar .tab-active{ color:#fff !important }
+
+/* Keep legacy classes working */
+.tab{ @apply select-none; }
+
+/* === CTA GRADIENT + HOVER PULSE (Generate buttons) === */
+.btn-cta {border-radius: 0.375rem;
+  padding:.75rem 1.15rem; font-weight:700;
+  background:linear-gradient(135deg,var(--burst),var(--burst-pink));
+  box-shadow:0 12px 32px rgba(236,72,153,.28), inset 0 0 0 1px rgba(255,255,255,.15);
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.btn-cta.burst-cta:hover{ transform:translateY(-1px); filter:saturate(1.05);
+  box-shadow:0 16px 40px rgba(236,72,153,.36), inset 0 0 0 1px rgba(255,255,255,.2) }
+.btn-cta.burst-cta:active{ transform:translateY(0) }
+.btn-cta.burst-cta--ghost{
+  background:transparent; color:#513a3a;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.btn-cta.burst-cta--ghost:hover{
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)
+}
+/* --- Inputs that ignore theme (stay white) --- */
+.input-white {
+  background-color: #ffffff;
+  color: #111111;
+  transition: box-shadow .2s ease, border-color .2s ease;
+  @apply w-full border px-4 py-3 outline-none focus:ring-2;
+  border-color: rgba(0,0,0,.12);
+  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
+}
+
+/* Rainbow placeholder (best in WebKit/Blink; degrades gracefully elsewhere) */
+.placeholder-rainbow::placeholder {
+  background: linear-gradient(90deg,#8B5CF6,#EC4899,#3B82F6,#10B981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: .85;
+}
+/* Gradient pill CTA (light/dark safe, v4-safe) */
+.bt-cta {border-radius: 0.375rem;               /* pill */
+  background: linear-gradient(90deg, var(--burst), var(--burst-pink), var(--burst-blue));
+  background-size: 200% 200%;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(139,92,246,.35);
+  transition: transform .12s ease, box-shadow .2s ease, background-position .4s ease;
+  /* tailwind utilities that are NOT arbitrary */
+  /* (padding, layout, typography) */
+  /* Using @apply for standard utilities only */
+  @apply inline-flex items-center justify-center px-5 py-3 font-semibold;
+}
+.btn-cta:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 12px 28px rgba(139,92,246,.45);
+  transform: translateY(-1px);
+}
+.btn-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(139,92,246,.35);
+}
+.btn-cta:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,.9),
+    0 0 0 6px rgba(139,92,246,.55);
+}
+/* subtle sheen */
+.btn-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 80% at 10% 0%, rgba(255,255,255,.30), transparent 40%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: .8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-cta { transition: box-shadow .2s ease; }
+  .btn-cta:hover { transform: none; background-position: 0 0; }
+}
+/* Shooting star / dot trail animation for hero */
+.hero-animation {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-animation::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10px white, 0 0 20px #ffffff;
+  animation: hero-shoot 3s ease-in-out infinite;
+}
+
+@keyframes hero-shoot {
+  0% {
+    transform: translateX(0) translateY(-50%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(110vw) translateY(-50%);
+    opacity: 1;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) translateY(-50%);
+    opacity: 0;
+  }
+}
+
+.hero-animation h1 {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.hero-animation h1::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px white, 0 0 15px #ff80ff, 0 0 25px #80b3ff;
+  transform: translateY(-50%);
+  animation: shooting-star 2.5s linear infinite;
+}
+
+@keyframes shooting-star {
+  0% {
+    left: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    left: 110%;
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: -10%;
+    opacity: 0;
+  }
+}
+.shine-wrap {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.shine {
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine-move 2.5s ease-in-out infinite;
+}
+
+@keyframes shine-move {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
+
+:root { --input-radius: .75rem; }
+.btn-cta.burst-cta{ border-radius: var(--input-radius); }
+.btn-cta.burst-cta:hover{ transform: translateY(-2px); box-shadow: 0 16px 40px color-mix(in oklab, var(--g1) 36%, transparent); filter: brightness(1.03); }
+.btn-cta.burst-cta:active{ transform: translateY(0); box-shadow: 0 8px 22px color-mix(in oklab, var(--g1) 26%, transparent); }
+.btn-cta.burst-cta--ghost{ border-radius: var(--input-radius); background: transparent; color: #fff; border: 1px solid color-mix(in oklab, var(--g1) 45%, #000 55%); }/* === HERO: smaller & faster shooting star (override) ====================== */
+.hero-shimmer .shine-wrap::after{
+  height:120% !important;
+  width:14% !important;              /* was ~36% -> smaller sweep */
+  filter: blur(.6px) !important;
+  animation: hero-sweep-fast 1.6s cubic-bezier(.22,.61,.36,1) infinite !important;
+}
+@keyframes hero-sweep-fast{
+  0%{ left:-42%; opacity:0 }
+  10%{ opacity:.95 }
+  55%{ left:120%; opacity:0 }
+  100%{ left:120%; opacity:0 }
+}
+
+/* === HERO SWITCHER: tabbar pop + thumb glow ============================== */
+.tabbar{
+  background: rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.tabbar .seg-thumb{
+  background: linear-gradient(135deg,var(--burst),var(--burst-pink)) !important;
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.40),
+    inset 0 0 0 1px rgba(255,255,255,.22),
+    0 0 0 1px rgba(255,255,255,.10);
+  transition:
+    transform .22s cubic-bezier(.2,.7,.2,1.0),
+    box-shadow .22s ease;
+}
+.tabbar .seg-btn{ letter-spacing:.2px; }
+
+/* subtle bounce when switching (applied via .is-switching class on parent) */
+.tabbar.is-switching .seg-thumb{ animation: segBounce .42s ease 1; }
+@keyframes segBounce{ 0%{transform:scale(.98)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+
+/* === GENERATE BUTTON: new shimmer pill =================================== */
+.btn-generate{
+  position: relative;
+  border-radius: .75rem;
+  padding: .8rem 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--burst), var(--burst-pink) 55%, var(--burst-blue));
+  background-size: 180% 180%;
+  box-shadow: 0 10px 30px color-mix(in oklab, var(--burst) 30%, transparent);
+  transition: transform .15s ease, box-shadow .25s ease, background-position .5s ease;
+}
+.btn-generate::after{ /* soft shimmer sweep */
+  content:""; position:absolute; inset:0; border-radius:inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+  background-size: 250% 100%;
+  mix-blend-mode: screen; pointer-events:none;
+  animation: btnShine 2.4s linear infinite;
+  opacity:.9;
+}
+@keyframes btnShine{ 0%{background-position:-150% 0} 100%{background-position:150% 0} }
+.btn-generate:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px color-mix(in oklab, var(--burst) 42%, transparent);
+  background-position: 100% 50%;
+}
+.btn-generate:active{ transform: translateY(0) }
+
+/* === PLACEHOLDER FADE (no layout hacks; JS toggles --ph) ================= */
+.input-white.placeholder-fader::placeholder{
+  opacity: var(--ph, 1);
+  transition: opacity .35s ease;
+}
+
+/* === Suggestion badges feel clickable ==================================== */
+.badge-contrast.is-clickable{
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+.badge-contrast.is-clickable:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.25);
+}
+/* Disable hero text animation on the headline explicitly */
+.no-hero-text-anim { animation: none !important; text-shadow: none !important; }
+.no-hero-text-anim::after { content: none !important; animation: none !important; }

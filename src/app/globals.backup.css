@@ -1,0 +1,224 @@
+﻿@import "tailwindcss";
+
+/* --- Light tokens --- */
+:root {
+  --background: #111111;
+  --foreground: #f5f5f5;
+
+  --surface: #18181b;
+  --surface-2: #1f1f24;
+  --border: #2a2a31;
+
+  --burst: #8B5CF6;      /* purple */
+  --burst-pink: #EC4899; /* pink   */
+  --burst-blue: #3B82F6; /* blue   */
+}
+
+/* Map tokens -> Tailwind v4 utilities */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+
+  --color-burst: var(--burst);
+  --color-burst-pink: var(--burst-pink);
+  --color-burst-blue: var(--burst-blue);
+
+  --font-sans: var(--font-poppins);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
+  --radius-xl2: 1rem;
+}
+
+/* System dark fallback (manual override still supported) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+    --surface: #ffffff;
+    --surface-2: #f6f7f8;
+    --border: #e6e6e6;
+  }
+}
+
+/* Manual override (wins over media) */
+:root[data-theme="light"] {
+  --background:#ffffff; --foreground:#171717;
+  --surface:#ffffff; --surface-2:#f6f7f8; --border:#e6e6e6;
+}
+:root[data-theme="dark"] {
+  --background:#111111; --foreground:#f5f5f5;
+  --surface:#18181b; --surface-2:#1f1f24; --border:#2a2a31;
+}
+
+/* ---------- Custom utilities (no @apply with arbitrary values) ---------- */
+
+/* Inputs */
+.input-burst {
+  border-radius: 5px;
+  transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+  @apply w-full border border-border bg-surface px-4 py-3 outline-none focus:ring-2 focus:ring-burst/30;
+}
+
+/* Buttons (calmer hover/active) */
+.btn { border-radius: 10px; @apply inline-flex items-center justify-center px-4 py-2 font-medium transition; }
+.btn-primary { @apply bg-burst text-white; box-shadow: 0 4px 14px rgba(139,92,246,.25); }
+.btn-primary:hover { box-shadow: 0 6px 18px rgba(139,92,246,.35); opacity:.98; }
+.btn-primary:active { transform: translateY(0); box-shadow: 0 3px 10px rgba(139,92,246,.25); }
+.btn-ghost { @apply bg-surface-2 text-foreground/90 border border-border; }
+.btn-outline { @apply bg-transparent text-foreground border border-border; }
+
+/* Badges */
+.badge { border-radius: 8px; @apply inline-flex items-center px-2.5 py-1 text-xs border border-border bg-surface-2; }
+
+/* Cards */
+.card-glass {
+  border-radius: 10px;
+  @apply border border-border bg-surface/80;
+  backdrop-filter: saturate(140%) blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* Hover lift */
+.hover-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+
+/* Container helper */
+.container-page { @apply mx-auto max-w-6xl px-6; }
+
+/* Animated gradient bg */
+@keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.hero-gradient {
+  background: linear-gradient(135deg,#8B5CF6 0%,#EC4899 35%,#3B82F6 70%,#8B5CF6 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 16s ease-in-out infinite;
+  will-change: background-position;
+}
+
+/* Text shadow helper */
+.text-shadow-lg { text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+
+/* Shimmer bar */
+@keyframes shimmer { 0% {background-position:-200% 0} 100% {background-position:200% 0} }
+.shimmer { position: relative; }
+.shimmer::after {
+  content:""; position:absolute; inset:1px; border-radius:6px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+  background-size:200% 100%; animation:shimmer 2.6s linear infinite; pointer-events:none;
+}
+
+/* Heading shine */
+@keyframes shine { from{transform:translateX(-150%)} to{transform:translateX(150%)} }
+.shine-wrap { position:relative; display:inline-block; }
+.shine-wrap::after {
+  content:""; position:absolute; left:0; top:55%; width:40%; height:2px;
+  transform:translateX(-150%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
+  animation:shine 3.2s ease-in-out infinite; border-radius:999px;
+}
+
+/* Divider */
+.hr { @apply h-px w-full bg-border; }
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce){
+  .hero-gradient { animation: none; }
+  .shimmer::after, .shine-wrap::after { animation: none; }
+}
+/* === Badge contrast tokens (work in light & dark) === */
+:root { --badge-bg: rgba(255,255,255,.10); --badge-fg: #ffffff; }
+@media (prefers-color-scheme: light) {
+  :root { --badge-bg: rgba(0,0,0,.06); --badge-fg: #111111; }
+}
+:root[data-theme="light"] { --badge-bg: rgba(0,0,0,.06); --badge-fg: #111111; }
+:root[data-theme="dark"] { --badge-bg: rgba(255,255,255,.10); --badge-fg: #ffffff; }
+
+/* Light/Dark aware badge */
+.badge-contrast {
+  border-radius: 8px;
+  background-color: var(--badge-bg);
+  color: var(--badge-fg);
+  @apply inline-flex items-center px-2.5 py-1 text-xs border border-border;
+}
+/* --- Inputs that ignore theme (stay white) --- */
+.input-white {
+  background-color: #ffffff;
+  color: #111111;
+  transition: box-shadow .2s ease, border-color .2s ease;
+  @apply w-full border px-4 py-3 outline-none focus:ring-2;
+  border-color: rgba(0,0,0,.12);
+  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
+}
+
+/* Rainbow placeholder (best in WebKit/Blink; degrades gracefully elsewhere) */
+.placeholder-rainbow::placeholder {
+  background: linear-gradient(90deg,#8B5CF6,#EC4899,#3B82F6,#10B981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: .85;
+}
+/* Gradient pill CTA (light/dark safe, v4-safe) */
+.btn-cta {
+  position: relative;
+  border: 0;
+  border-radius: 9999px;               /* pill */
+  background: linear-gradient(90deg, var(--burst), var(--burst-pink), var(--burst-blue));
+  background-size: 200% 200%;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(139,92,246,.35);
+  transition: transform .12s ease, box-shadow .2s ease, background-position .4s ease;
+  /* tailwind utilities that are NOT arbitrary */
+  /* (padding, layout, typography) */
+  /* Using @apply for standard utilities only */
+  @apply inline-flex items-center justify-center px-5 py-3 font-semibold;
+}
+.btn-cta:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 12px 28px rgba(139,92,246,.45);
+  transform: translateY(-1px);
+}
+.btn-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(139,92,246,.35);
+}
+.btn-cta:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,.9),
+    0 0 0 6px rgba(139,92,246,.55);
+}
+/* subtle sheen */
+.btn-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 80% at 10% 0%, rgba(255,255,255,.30), transparent 40%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: .8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-cta { transition: box-shadow .2s ease; }
+  .btn-cta:hover { transform: none; background-position: 0 0; }
+}
+/* --- Pill tabs (v4-safe) --- */
+.tabbar { @apply inline-flex items-center p-1 border border-border rounded-full bg-surface/70 backdrop-blur-sm; }
+.tab    { @apply px-3 py-1.5 text-sm rounded-full; transition: background-color .15s ease, color .15s ease; }
+.tab-active {
+  color: #fff;
+  background: linear-gradient(90deg, var(--burst), var(--burst-pink), var(--burst-blue));
+  box-shadow: 0 6px 16px rgba(139,92,246,.35);
+}
+
+@keyframes code-bg {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.animate-code-bg {
+  animation: code-bg 10s linear infinite;
+}
